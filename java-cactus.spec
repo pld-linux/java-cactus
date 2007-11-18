@@ -18,27 +18,25 @@ BuildRequires:	ant-nodeps >= 0:1.6
 BuildRequires:	ant-trax >= 0:1.6
 BuildRequires:	antlr
 BuildRequires:	aspectj
-BuildRequires:	checkstyle
+#BuildRequires:	checkstyle
 BuildRequires:	httpunit
-BuildRequires:	j2sdkee-1.2-sun
-BuildRequires:	j2sdkee-1.3-sun
+BuildRequires:	j2sdk >= 1.3
 BuildRequires:	jakarta-commons-beanutils
 BuildRequires:	jakarta-commons-collections
 BuildRequires:	jakarta-commons-httpclient
 BuildRequires:	jakarta-commons-logging
-BuildRequires:	jakarta-log4j
-BuildRequires:	jakarta-taglibs-standard
-BuildRequires:	jasper4
+#BuildRequires:	jakarta-taglibs-standard
+#BuildRequires:	jasper4
 BuildRequires:	jaxp_transform_impl
-BuildRequires:	jetty4
-BuildRequires:	jpackage-utils
+#BuildRequires:	jetty4
 BuildRequires:	jpackage-utils >= 0:1.5
 BuildRequires:	junit
-BuildRequires:	mockobjects
-BuildRequires:	nekohtml
-BuildRequires:	regexp
+BuildRequires:	logging-log4j
+#BuildRequires:	mockobjects
+#BuildRequires:	nekohtml
+#BuildRequires:	regexp
 BuildRequires:	rpmbuild(macros) >= 1.300
-BuildRequires:	servletapi3
+#BuildRequires:	servletapi3
 BuildRequires:	servletapi4
 BuildRequires:	xerces-j
 BuildRequires:	xml-commons-apis

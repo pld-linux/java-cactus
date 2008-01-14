@@ -1,17 +1,18 @@
 %define base_name cactus
-Summary:	Cactus unit test framework for server-side java code
+Summary:	Cactus unit test framework for server-side Java code
+Summary(pl.UTF-8):	Cactus - szkielet testów jednostkowych dla kodu w Javie po stronie serwera
 Name:		jakarta-%{base_name}
 Version:	1.7.2
 Release:	0.1
 Epoch:		0
-License:	Apache Software License
+License:	Apache
 Group:		Development/Libraries
-URL:		http://jakarta.apache.org/cactus/
 Source0:	http://www.apache.org/dist/jakarta/cactus/source/jakarta-cactus-src-%{version}.zip
 # Source0-md5:	251c65b55e42b723d7b99c87a4b204d2
 #Source1:	cactus-missing-testinput.tar.gz
 #Patch0: cactus-checkstyle.patch
 #Patch1: cactus-noeclipse-build_xml.patch
+URL:		http://jakarta.apache.org/cactus/
 BuildRequires:	ant >= 0:1.6
 BuildRequires:	ant-junit >= 0:1.6
 BuildRequires:	ant-nodeps >= 0:1.6
@@ -65,25 +66,40 @@ BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Cactus is a simple test framework for unit testing server-side java
+Cactus is a simple test framework for unit testing server-side Java
 code (Servlets, EJBs, Tag Libs, Filters, ...). The intent of Cactus is
 to lower the cost of writing tests for server-side code. It uses JUnit
-and extends it. Cactus implements an in-container strategy
+and extends it. Cactus implements an in-container strategy.
+
+%description -l pl.UTF-8
+Cactus to prosty szkielet testów do testowania jednostkowego kodu w
+Javie działającego po stronie serwera (serwletów, EJB, Tag Lib,
+filtrów...). Celem Cactusa jest obniżenie kosztu pisania testów kodu
+serwerowego. Wykorzystuje i rozszerza JUnit, implementuje strategię
+wewnątrzkontenerową.
 
 %package javadoc
 Summary:	Javadoc for %{name}
+Summary(pl.UTF-8):	Dokumentacja Javadoc do pakietu %{name}
 Group:		Documentation
 Requires:	jpackage-utils
 
 %description javadoc
 Javadoc for %{name}.
 
+%description javadoc -l pl.UTF-8
+Dokumentacja Javadoc do pakietu %{name}.
+
 %package manual
 Summary:	Docs for %{name}
+Summary(pl.UTF-8):	Dokumentacja do pakietu %{name}
 Group:		Documentation
 
 %description manual
 Docs for %{name}.
+
+%description manual -l pl.UTF-8
+Dokumentacja do pakietu %{name}.
 
 %prep
 %setup -q -n %{name}-src-%{version}

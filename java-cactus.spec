@@ -1,26 +1,22 @@
+# TODO
+# - use system jars, not download with maven
+# - http://jakarta.apache.org/cactus/participating/howto_build.html
 %define		base_name cactus
 %include	/usr/lib/rpm/macros.java
 Summary:	Cactus unit test framework for server-side Java code
 Summary(pl.UTF-8):	Cactus - szkielet testów jednostkowych dla kodu w Javie po stronie serwera
 Name:		java-%{base_name}
-Version:	1.7.2
+Version:	1.8.1
 Release:	0.1
 Epoch:		0
 License:	Apache
 Group:		Development/Libraries
 Obsoletes:	jakarta-cactus
-Source0:	http://www.apache.org/dist/jakarta/cactus/source/jakarta-cactus-src-%{version}.zip
-# Source0-md5:	251c65b55e42b723d7b99c87a4b204d2
-#Source1:	cactus-missing-testinput.tar.gz
-#Patch0: cactus-checkstyle.patch
-#Patch1: cactus-noeclipse-build_xml.patch
+Source0:	http://www.apache.org/dist/jakarta/cactus/sources/cactus-%{version}-src.tar.bz2
+# Source0-md5:	60c020a348100610a0d565c374146c2a
 URL:		http://jakarta.apache.org/cactus/
-BuildRequires:	ant >= 0:1.6
-BuildRequires:	ant-junit >= 0:1.6
-BuildRequires:	ant-nodeps >= 0:1.6
-BuildRequires:	ant-trax >= 0:1.6
 BuildRequires:	antlr
-#BuildRequires:	aspectj
+BuildRequires:	aspectj
 #BuildRequires:	checkstyle
 BuildRequires:	httpunit
 BuildRequires:	j2sdk >= 1.3
@@ -28,7 +24,6 @@ BuildRequires:	jakarta-commons-beanutils
 BuildRequires:	jakarta-commons-collections
 BuildRequires:	jakarta-commons-logging
 #BuildRequires:	jakarta-taglibs-standard
-#BuildRequires:	jasper4
 BuildRequires:	java-commons-httpclient
 BuildRequires:	java-log4j
 BuildRequires:	java-servletapi5
@@ -37,12 +32,14 @@ BuildRequires:	jaxp_transform_impl
 #BuildRequires:	jetty4
 BuildRequires:	jpackage-utils >= 0:1.5
 BuildRequires:	junit
+BuildRequires:	maven >= 2.0
 #BuildRequires:	mockobjects
 #BuildRequires:	nekohtml
 #BuildRequires:	regexp
 BuildRequires:	rpmbuild(macros) >= 1.300
 BuildRequires:	sed >= 4.0
 #BuildRequires:	servletapi3
+BuildRequires:	tomcat-jasper
 BuildRequires:	xml-commons-apis
 Requires:	antlr
 Requires:	aspectj
@@ -105,46 +102,23 @@ Docs for %{name}.
 Dokumentacja do pakietu %{name}.
 
 %prep
-%setup -q -n jakarta-cactus-src-%{version}
-#gzip -dc %{SOURCE1} | tar -xf -
-%{__sed} -i -e '/clover\.enable/d' build.xml
+%setup -q -n cactus-%{version}-src
+#%{__sed} -i -e '/clover\.enable/d' build.xml
 
 %build
-cat >> build.properties <<EOF
-aspectjrt.jar=$(build-classpath aspectjrt)
-aspectj-tools.jar=$(build-classpath aspectjtools)
-commons.httpclient.jar=$(build-classpath commons-httpclient)
-commons.logging.jar=$(build-classpath commons-logging)
-httpunit.jar=$(build-classpath httpunit)
-j2ee.12.jar=$(build-classpath j2ee-1.2)
-j2ee.13.jar=$(build-classpath j2ee-1.3)
-junit.jar=$(build-classpath junit)
-mockobjects.jar=$(build-classpath mockobjects-core)
-log4j.jar=$(build-classpath log4j)
-xmlapis.jar=$(build-classpath xml-commons-apis)
-servlet.22.jar=$(build-classpath servletapi3)
-servlet.23.jar=$(build-classpath servletapi4)
-nekohtml.jar=$(build-classpath nekohtml)
-jstl.jar=$(build-classpath taglibs-core)
-standard.jar=$(build-classpath jakarta-taglibs-standard)
-xerces.jar=$(build-classpath xerces-j2)
-jetty.jar=$(build-classpath jetty4)
-jasper-compiler.jar=$(build-classpath jasper4-compiler)
-jasper-runtime.jar=$(build-classpath jasper4-runtime)
-cactus.port=9992
-EOF
-
-if grep '=$' build.properties; then
-	: Some .jar could not be found
-	exit 1
-fi
-
-export OPT_JAR_LIST="ant/ant-nodeps ant/ant-junit junit ant/ant-trax jaxp_transform_impl aspectjtools"
-%ant -Dbuild.sysclasspath=first
+mvn assembly:assembly -N
+# TODO: figure out how to skip tarball build
+rm -rf cactus-%{version}-bin
+tar jxf target/cactus-%{version}-bin.tar.bz2
+mv cactus-%{version}-bin dist
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT%{_javadir}/cactus
 
+cp -a dist/lib/*.jar $RPM_BUILD_ROOT%{_javadir}/cactus
+
+%if 0
 # jars
 install -d $RPM_BUILD_ROOT%{_javadir}/cactus-12
 cp -p framework/dist-12/lib/cactus-%{version}.jar \
@@ -175,6 +149,7 @@ rm -rf documentation/dist/doc/api
 install -d $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 cp LICENSE.cactus $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 cp -pr documentation/dist/doc/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -184,10 +159,10 @@ ln -nfs %{name}-%{version} %{_javadocdir}/%{name}
 
 %files
 %defattr(644,root,root,755)
-%{_docdir}/%{name}-%{version}/LICENSE.cactus
-%{_datadir}/%{name}-%{version}
-%{_javadir}/*
+%dir %{_javadir}/cactus
+%{_javadir}/cactus/*.jar
 
+%if 0
 %files javadoc
 %defattr(644,root,root,755)
 %doc %{_javadocdir}/%{name}-%{version}
@@ -196,3 +171,4 @@ ln -nfs %{name}-%{version} %{_javadocdir}/%{name}
 %files manual
 %defattr(644,root,root,755)
 %{_docdir}/%{name}-%{version}
+%endif

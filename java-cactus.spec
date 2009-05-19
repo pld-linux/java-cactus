@@ -1,12 +1,14 @@
-%define base_name cactus
+%define		base_name cactus
+%include	/usr/lib/rpm/macros.java
 Summary:	Cactus unit test framework for server-side Java code
 Summary(pl.UTF-8):	Cactus - szkielet testów jednostkowych dla kodu w Javie po stronie serwera
-Name:		jakarta-%{base_name}
+Name:		java-%{base_name}
 Version:	1.7.2
 Release:	0.1
 Epoch:		0
 License:	Apache
 Group:		Development/Libraries
+Obsoletes:	jakarta-cactus
 Source0:	http://www.apache.org/dist/jakarta/cactus/source/jakarta-cactus-src-%{version}.zip
 # Source0-md5:	251c65b55e42b723d7b99c87a4b204d2
 #Source1:	cactus-missing-testinput.tar.gz
@@ -18,28 +20,29 @@ BuildRequires:	ant-junit >= 0:1.6
 BuildRequires:	ant-nodeps >= 0:1.6
 BuildRequires:	ant-trax >= 0:1.6
 BuildRequires:	antlr
-BuildRequires:	aspectj
+#BuildRequires:	aspectj
 #BuildRequires:	checkstyle
 BuildRequires:	httpunit
 BuildRequires:	j2sdk >= 1.3
 BuildRequires:	jakarta-commons-beanutils
 BuildRequires:	jakarta-commons-collections
-BuildRequires:	jakarta-commons-httpclient
 BuildRequires:	jakarta-commons-logging
 #BuildRequires:	jakarta-taglibs-standard
 #BuildRequires:	jasper4
+BuildRequires:	java-commons-httpclient
+BuildRequires:	java-log4j
+BuildRequires:	java-servletapi5
+BuildRequires:	java-xerces
 BuildRequires:	jaxp_transform_impl
 #BuildRequires:	jetty4
 BuildRequires:	jpackage-utils >= 0:1.5
 BuildRequires:	junit
-BuildRequires:	logging-log4j
 #BuildRequires:	mockobjects
 #BuildRequires:	nekohtml
 #BuildRequires:	regexp
 BuildRequires:	rpmbuild(macros) >= 1.300
+BuildRequires:	sed >= 4.0
 #BuildRequires:	servletapi3
-BuildRequires:	servletapi4
-BuildRequires:	xerces-j
 BuildRequires:	xml-commons-apis
 Requires:	antlr
 Requires:	aspectj
@@ -49,18 +52,18 @@ Requires:	j2sdkee-1.2-sun
 Requires:	j2sdkee-1.3-sun
 Requires:	jakarta-commons-beanutils
 Requires:	jakarta-commons-collections
-Requires:	jakarta-commons-httpclient
 Requires:	jakarta-commons-logging
 Requires:	jakarta-taglibs-standard
 Requires:	jasper4
+Requires:	java-commons-httpclient
+Requires:	java-log4j
+Requires:	java-xerces
 Requires:	jetty4
-Requires:	log4j
 Requires:	mockobjects
 Requires:	nekohtml
 Requires:	regexp
 Requires:	servletapi3
 Requires:	servletapi4
-Requires:	xerces-j2
 Requires:	xml-commons-apis
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -102,34 +105,39 @@ Docs for %{name}.
 Dokumentacja do pakietu %{name}.
 
 %prep
-%setup -q -n %{name}-src-%{version}
+%setup -q -n jakarta-cactus-src-%{version}
 #gzip -dc %{SOURCE1} | tar -xf -
+%{__sed} -i -e '/clover\.enable/d' build.xml
 
 %build
-sed -e '/clover\.enable/d' build.xml > tempf
-cp tempf build.xml
-rm tempf
-echo aspectjrt.jar = $(build-classpath aspectjrt) >> build.properties
-echo aspectj-tools.jar = $(build-classpath aspectjtools) >> build.properties
-echo commons.httpclient.jar = $(build-classpath commons-httpclient) >> build.properties
-echo commons.logging.jar = $(build-classpath commons-logging) >> build.properties
-echo httpunit.jar = $(build-classpath httpunit) >> build.properties
-echo j2ee.12.jar = $(build-classpath j2ee-1.2) >> build.properties
-echo j2ee.13.jar = $(build-classpath j2ee-1.3) >> build.properties
-echo junit.jar = $(build-classpath junit) >> build.properties
-echo mockobjects.jar = $(build-classpath mockobjects-core) >> build.properties
-echo log4j.jar = $(build-classpath log4j) >> build.properties
-echo xmlapis.jar = $(build-classpath xml-commons-apis) >> build.properties
-echo servlet.22.jar = $(build-classpath servletapi3) >> build.properties
-echo servlet.23.jar = $(build-classpath servletapi4) >> build.properties
-echo nekohtml.jar = $(build-classpath nekohtml) >> build.properties
-echo jstl.jar = $(build-classpath taglibs-core) >> build.properties
-echo standard.jar = $(build-classpath jakarta-taglibs-standard) >> build.properties
-echo xerces.jar = $(build-classpath xerces-j2) >> build.properties
-echo jetty.jar = $(build-classpath jetty4) >> build.properties
-echo jasper-compiler.jar = $(build-classpath jasper4-compiler) >> build.properties
-echo jasper-runtime.jar = $(build-classpath jasper4-runtime) >> build.properties
-echo cactus.port = 9992 >> build.properties
+cat >> build.properties <<EOF
+aspectjrt.jar=$(build-classpath aspectjrt)
+aspectj-tools.jar=$(build-classpath aspectjtools)
+commons.httpclient.jar=$(build-classpath commons-httpclient)
+commons.logging.jar=$(build-classpath commons-logging)
+httpunit.jar=$(build-classpath httpunit)
+j2ee.12.jar=$(build-classpath j2ee-1.2)
+j2ee.13.jar=$(build-classpath j2ee-1.3)
+junit.jar=$(build-classpath junit)
+mockobjects.jar=$(build-classpath mockobjects-core)
+log4j.jar=$(build-classpath log4j)
+xmlapis.jar=$(build-classpath xml-commons-apis)
+servlet.22.jar=$(build-classpath servletapi3)
+servlet.23.jar=$(build-classpath servletapi4)
+nekohtml.jar=$(build-classpath nekohtml)
+jstl.jar=$(build-classpath taglibs-core)
+standard.jar=$(build-classpath jakarta-taglibs-standard)
+xerces.jar=$(build-classpath xerces-j2)
+jetty.jar=$(build-classpath jetty4)
+jasper-compiler.jar=$(build-classpath jasper4-compiler)
+jasper-runtime.jar=$(build-classpath jasper4-runtime)
+cactus.port=9992
+EOF
+
+if grep '=$' build.properties; then
+	: Some .jar could not be found
+	exit 1
+fi
 
 export OPT_JAR_LIST="ant/ant-nodeps ant/ant-junit junit ant/ant-trax jaxp_transform_impl aspectjtools"
 %ant -Dbuild.sysclasspath=first

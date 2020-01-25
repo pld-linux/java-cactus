@@ -2,7 +2,6 @@
 # - use system jars, not download with maven
 # - http://jakarta.apache.org/cactus/participating/howto_build.html
 %define		base_name cactus
-%include	/usr/lib/rpm/macros.java
 Summary:	Cactus unit test framework for server-side Java code
 Summary(pl.UTF-8):	Cactus - szkielet testów jednostkowych dla kodu w Javie po stronie serwera
 Name:		java-%{base_name}
